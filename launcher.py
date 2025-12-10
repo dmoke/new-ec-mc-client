@@ -37,7 +37,7 @@ minecraft_directory = get_minecraft_directory().replace('minecraft', 'Engineerin
 TITLE = "Engineering Club MC"
 VANILLA_VERSION_ID = '1.20'
 FORGE_VERSION_ID = '1.20-forge-46.0.14'
-GITHUB_REPO = "https://github.com/dmoke/new-ec-mc-client"
+GITHUB_REPO = "https://api.github.com/repos/dmoke/new-ec-mc-client/releases/latest"
 is_dev_environment = os.getenv('DEV_ENVIRONMENT', False)
 
 
