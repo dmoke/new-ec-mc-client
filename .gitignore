@@ -1,0 +1,10 @@
+/.venv
+/venv
+venv
+.idea
+/logs
+.sl_password
+build
+_internal
+simplebackups
+.physics_mod_cache
