@@ -37,7 +37,7 @@ minecraft_directory = get_minecraft_directory().replace('minecraft', 'Engineerin
 TITLE = "Engineering Club MC"
 VANILLA_VERSION_ID = '1.20'
 FORGE_VERSION_ID = '1.20-forge-46.0.14'
-GITHUB_REPO = "https://api.github.com/repos/dmoke/EC-MC-client/releases/latest"
+GITHUB_REPO = "https://github.com/dmoke/new-ec-mc-client"
 is_dev_environment = os.getenv('DEV_ENVIRONMENT', False)
 
 
@@ -363,7 +363,7 @@ class MainWindow(QMainWindow):
         version_checkbox_layout.addWidget(self.launcher_version_label, 0, Qt.AlignmentFlag.AlignLeft)
 
         self.repo_link_label = QLabel()
-        self.repo_link_label.setText('<a href="https://github.com/dmoke/EC-MC-client">GitHub</a>')
+        self.repo_link_label.setText('<a href="https://github.com/dmoke/new-ec-mc-client">GitHub</a>')
         self.repo_link_label.setOpenExternalLinks(True)
         version_checkbox_layout.addWidget(self.repo_link_label, 1, Qt.AlignmentFlag.AlignRight)
 

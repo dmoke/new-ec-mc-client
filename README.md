@@ -6,7 +6,7 @@ Ensure you have the following software installed on your system:
 - Python 3.8 or later
 
 ## Installation
-Download the latest release from [here](https://github.com/dmoke/EC-MC-client/releases/latest).
+Download the latest release from [here](https://github.com/dmoke/new-ec-mc-client/releases/latest).
 
 ## Usage
 ### On Windows
