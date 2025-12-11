@@ -12,12 +12,36 @@ if %ERRORLEVEL% EQU 0 (
     copy /Y dist\launcher.exe launcher.exe
 
     echo Launcher replaced successfully!
+
+    REM Get current version from version.json
+    for /f "tokens=2 delims=:," %%a in ('type assets\version.json ^| findstr "version"') do (
+        set VERSION=%%~a
+        goto :version_found
+    )
+    :version_found
+    set VERSION=%VERSION:"=%
+    set VERSION=%VERSION: =%
+
+    echo Current version: %VERSION%
+
+    REM Git operations
+    echo Adding files to git...
+    git add .
+
+    echo Committing changes...
+    git commit -m "Build launcher update v%VERSION%"
+
+    echo Creating tag %VERSION%...
+    git tag %VERSION%
+
+    echo Pushing to GitHub...
+    git push origin master
+    git push origin %VERSION%
+
     echo.
-    echo Now you can:
-    echo 1. Update version in assets/version.json
-    echo 2. Commit changes: git add . && git commit -m "Update launcher and version"
-    echo 3. Create tag: git tag [new-version]
-    echo 4. Push: git push origin master && git push origin [tag]
+    echo All operations completed successfully!
+    echo Release %VERSION% has been created and pushed to GitHub!
+
 ) else (
     echo Build failed! Please check the errors above.
     pause
@@ -25,5 +49,5 @@ if %ERRORLEVEL% EQU 0 (
 )
 
 echo.
-echo Build and replace completed successfully!
+echo Build, commit, tag, and push completed successfully!
 pause
