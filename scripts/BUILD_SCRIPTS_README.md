@@ -2,9 +2,34 @@
 
 This project includes several batch scripts to automate the build and release process for the Minecraft launcher.
 
+## Directory Structure
+```
+scripts/
+├── build_only.bat          # Simple build only
+├── build_and_tag.bat       # Build + interactive tagging
+├── build_and_release.bat   # Full automation
+├── version_and_tag.bat     # Version management only
+├── release.bat             # Official release script
+└── BUILD_SCRIPTS_README.md # This documentation
+```
+
 ## Available Scripts
 
-### 1. `build_only.bat`
+### 1. `release.bat [version]`
+**Purpose**: Official release script (RECOMMENDED)
+**What it does**:
+- Takes version number as parameter
+- Updates `assets/version.json`
+- Runs full build and release process
+- Creates GitHub release
+
+**Usage**: For official releases
+```bash
+cd scripts
+.\release.bat 0.1.5.0
+```
+
+### 2. `build_only.bat`
 **Purpose**: Build the launcher executable only
 **What it does**:
 - Builds the executable using PyInstaller
@@ -13,10 +38,11 @@ This project includes several batch scripts to automate the build and release pr
 
 **Usage**: Run when you just want to test builds locally
 ```bash
+cd scripts
 .\build_only.bat
 ```
 
-### 2. `build_and_tag.bat`
+### 3. `build_and_tag.bat`
 **Purpose**: Build launcher and create a new version/tag
 **What it does**:
 - Builds the executable using PyInstaller
@@ -29,10 +55,11 @@ This project includes several batch scripts to automate the build and release pr
 
 **Usage**: When you have code changes and want to create a new release
 ```bash
+cd scripts
 .\build_and_tag.bat
 ```
 
-### 3. `build_and_release.bat`
+### 4. `build_and_release.bat`
 **Purpose**: Full automation - build, commit, tag, and push
 **What it does**:
 - Builds the executable using PyInstaller
@@ -44,10 +71,11 @@ This project includes several batch scripts to automate the build and release pr
 
 **Usage**: Quick full automation (ensure version.json is updated first)
 ```bash
+cd scripts
 .\build_and_release.bat
 ```
 
-### 4. `version_and_tag.bat`
+### 5. `version_and_tag.bat`
 **Purpose**: Update version and create tag without building
 **What it does**:
 - Asks for a new version number
@@ -58,25 +86,28 @@ This project includes several batch scripts to automate the build and release pr
 
 **Usage**: When you want to update version for existing build
 ```bash
+cd scripts
 .\version_and_tag.bat
 ```
 
-## Workflow Examples
+## Recommended Workflow
 
-### New Feature Development:
+### For Official Releases (RECOMMENDED):
+```bash
+cd scripts
+.\release.bat 0.1.5.0
+```
+
+### For Development/Testing:
 1. Make code changes
-2. Update `assets/version.json` with new version
-3. Run `.\build_and_release.bat`
+2. Test locally: `.\build_only.bat`
+3. Create release: `.\build_and_release.bat`
 
-### Quick Testing:
-1. Make code changes
-2. Run `.\build_only.bat` to test locally
-
-### Version Bump Only:
-1. Run `.\version_and_tag.bat` to update version without rebuilding
-
-### Full Manual Control:
-1. Run `.\build_and_tag.bat` for interactive version input
+### For Version-Only Updates:
+```bash
+cd scripts
+.\version_and_tag.bat
+```
 
 ## Notes
 
@@ -84,3 +115,4 @@ This project includes several batch scripts to automate the build and release pr
 - Tag conflicts are handled automatically (skips if tag exists)
 - Make sure to have `python-dotenv` in your requirements if using `.env` files
 - Git must be configured and connected to the repository
+- Scripts are designed to be run from the `scripts/` directory
