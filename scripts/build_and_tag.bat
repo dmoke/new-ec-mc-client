@@ -2,14 +2,14 @@
 echo Building and Tagging Script
 
 REM Build the executable using PyInstaller
-pyinstaller launcher.spec
+pyinstaller ..\launcher.spec
 
 REM Check if build was successful
 if %ERRORLEVEL% EQU 0 (
     echo Build successful! Replacing launcher in root folder...
 
     REM Copy the built executable to root folder
-    copy /Y dist\launcher.exe launcher.exe
+    copy /Y dist\launcher.exe ..\launcher.exe
 
     echo Launcher replaced successfully!
 
@@ -24,7 +24,7 @@ if %ERRORLEVEL% EQU 0 (
 
     REM Update version.json
     echo Updating version.json to %NEW_VERSION%...
-    powershell -Command "(Get-Content assets/version.json) -replace '\"version\": \"[^\"]*\"', '\"version\": \"%NEW_VERSION%\"' | Set-Content assets/version.json"
+    powershell -Command "(Get-Content ../assets/version.json) -replace '\"version\": \"[^\"]*\"', '\"version\": \"%NEW_VERSION%\"' | Set-Content ../assets/version.json"
 
     echo Version updated to %NEW_VERSION%
 

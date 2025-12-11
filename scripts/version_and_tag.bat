@@ -2,7 +2,7 @@
 echo Version and Tag Preparation Script
 
 REM Get current version from version.json
-for /f "tokens=2 delims=:," %%a in ('type assets\version.json ^| findstr "version"') do (
+for /f "tokens=2 delims=:," %%a in ('type ..\assets\version.json ^| findstr "version"') do (
     set VERSION=%%~a
     goto :version_found
 )
@@ -23,7 +23,7 @@ if "%NEW_VERSION%"=="" (
 
 REM Update version.json
 echo Updating version.json to %NEW_VERSION%...
-powershell -Command "(Get-Content assets/version.json) -replace '\"version\": \"%VERSION%\"', '\"version\": \"%NEW_VERSION%\"' | Set-Content assets/version.json"
+powershell -Command "(Get-Content ../assets/version.json) -replace '\"version\": \"%VERSION%\"', '\"version\": \"%NEW_VERSION%\"' | Set-Content ../assets/version.json"
 
 echo Version updated to %NEW_VERSION%
 
