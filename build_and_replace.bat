@@ -32,11 +32,11 @@ if %ERRORLEVEL% EQU 0 (
     git commit -m "Build launcher update v%VERSION%"
 
     echo Creating tag %VERSION%...
-    git tag %VERSION%
+    git tag %VERSION% 2>nul || echo Tag %VERSION% already exists, skipping...
 
     echo Pushing to GitHub...
     git push origin master
-    git push origin %VERSION%
+    git push origin %VERSION% 2>nul || echo Tag %VERSION% already pushed, skipping...
 
     echo.
     echo All operations completed successfully!
