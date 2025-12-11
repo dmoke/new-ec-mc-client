@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import sys
 import time
+from dotenv import load_dotenv  # pyright: ignore[reportMissingImports]
 import zipfile
 from subprocess import call
 from sys import argv, exit
@@ -32,11 +33,11 @@ from minecraft_launcher_lib.utils import get_minecraft_directory
 # TODO: hide ip with noip
 # TODO: get mca skins online
 
-
+load_dotenv()
 minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
 TITLE = "Engineering Club MC"
-VANILLA_VERSION_ID = '1.20'
-FORGE_VERSION_ID = '1.20-forge-46.0.14'
+VANILLA_VERSION_ID = '1.12.2'
+FORGE_VERSION_ID = '1.12.2-forge-14.23.5.2860'
 GITHUB_REPO = "https://api.github.com/repos/dmoke/new-ec-mc-client/releases/latest"
 is_dev_environment = os.getenv('DEV_ENVIRONMENT', False)
 
@@ -273,6 +274,7 @@ class LaunchThread(QThread):
 
         self.progress_update_signal.emit(self.progress_max, self.progress_max, "Checking for updates...")
         assets = self.fetch_launcher_version()
+        print(f"dev_env: {is_dev_environment}")
 
         if self.currentLauncherVersion != self.latest_version and not is_dev_environment:
             # Download and install assets if versions are different
@@ -419,7 +421,7 @@ class MainWindow(QMainWindow):
             self.perform_purge_action()
 
     def launch_game(self):
-        forge_version_id = "1.20-forge-46.0.14"
+        forge_version_id = "1.12.2-forge-14.23.5.2860"
 
         self.start_progress_label.setText("Checking for updates...")
         self.start_progress.setValue(100)
