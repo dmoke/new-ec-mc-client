@@ -1,4 +1,4 @@
-# pyinstaller --onefile --noconsole launcher.py --uac-admin
+# pyinstaller --onefile --noconsole launcher.py --uac-admin -w
 import json
 import os
 import platform
@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import sys
 import time
-from dotenv import load_dotenv  # pyright: ignore[reportMissingImports]
+from dotenv import load_dotenv
 import zipfile
 from subprocess import call
 from sys import argv, exit
@@ -15,7 +15,7 @@ import requests
 from PyQt5.QtCore import QThread, pyqtSignal, QSize, Qt
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QSpacerItem, QSizePolicy, \
-    QProgressBar, QPushButton, QApplication, QMainWindow, QCheckBox, QHBoxLayout, QMessageBox
+    QProgressBar, QPushButton, QApplication, QMainWindow, QCheckBox, QHBoxLayout, QMessageBox, QSlider
 from minecraft_launcher_lib import forge
 from minecraft_launcher_lib.command import get_minecraft_command
 from minecraft_launcher_lib.forge import find_forge_version
@@ -34,10 +34,12 @@ from minecraft_launcher_lib.utils import get_minecraft_directory
 # TODO: get mca skins online
 
 load_dotenv()
-minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
+SERVER_TYPE = 'new'
+minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher'+ f'_{SERVER_TYPE}')
 TITLE = "Engineering Club MC"
 VANILLA_VERSION_ID = '1.12.2'
-FORGE_VERSION_ID = '1.12.2-forge-14.23.5.2860'
+FORGE_FOLDER = '1.12.2-forge-14.23.5.2859'
+FORGE_VERSION_ID = '1.12.2-14.23.5.2859'
 GITHUB_REPO = "https://api.github.com/repos/dmoke/new-ec-mc-client/releases/latest"
 is_dev_environment = os.getenv('DEV_ENVIRONMENT', False)
 
@@ -58,58 +60,48 @@ def clear_and_move_mods(local_mods_dir):
             if os.path.isfile(mod_path) and mod_file.endswith('.jar'):
                 shutil.copy(mod_path, mods_directory)
 
+    print("Moved modes successfully.")
 
-def replace_waystones_config_file():
-    # Specify the paths for the source and destination files
-    source_file_path = os.path.join(os.getcwd(), 'assets', 'waystones-common.toml')
-    destination_file_path = os.path.join(minecraft_directory, 'config', 'waystones-common.toml')
+# def replace_waystones_config_file():
+#     # Specify the paths for the source and destination files
+#     source_file_path = os.path.join(os.getcwd(), 'assets', 'waystones-common.toml')
+#     destination_dirs = [os.path.join(minecraft_directory, 'defaultconfigs'), os.path.join(minecraft_directory, 'config')]
+#     destination_file_name = 'waystones-common.toml'
+
+#     try:
+#         # Check if the source file exists
+#         if os.path.exists(source_file_path):
+#             for destination_dir in destination_dirs:
+#                 # Check if the destination directory exists, create it if not
+#                 if not os.path.exists(destination_dir):
+#                     os.makedirs(destination_dir)
+
+#                 # Construct the full path for the destination file
+#                 destination_file_path = os.path.join(destination_dir, destination_file_name)
+
+#                 # Replace the destination file with the source file
+#                 shutil.copy2(source_file_path, destination_file_path)
+#                 print(f"Successfully replaced {destination_file_path} with {source_file_path}")
+#         else:
+#             print(f"Error: Source file {source_file_path} not found.")
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
+
+
+def override_files():
+    # Source directory containing files to override
+    source_directory = os.path.join(os.getcwd(), 'assets', 'overrides')
+
+    # Destination directory (Minecraft directory)
+    destination_directory = minecraft_directory
 
     try:
-        # Check if the source file exists
-        if os.path.exists(source_file_path):
-            # Replace the destination file with the source file
-            shutil.copy2(source_file_path, destination_file_path)
-            print(f"Successfully replaced {destination_file_path} with {source_file_path}")
-        else:
-            print(f"Error: Source file {source_file_path} not found.")
+        # Copy the entire directory tree from source to destination, overwriting existing files
+        shutil.copytree(source_directory, destination_directory, dirs_exist_ok=True)
+
+        print("Files overridden successfully.")
     except Exception as e:
-        print(f"An error occurred: {e}")
-
-
-def move_extra_shaders():
-    client_shaders_directory = os.path.join(minecraft_directory, 'shaderpacks')
-    local_shaders_directory = 'shaderpacks'
-
-    os.makedirs(client_shaders_directory, exist_ok=True)
-
-    for shader_pack in os.listdir(local_shaders_directory):
-        shader_pack_path = os.path.join(local_shaders_directory, shader_pack)
-        client_shader_pack_path = os.path.join(client_shaders_directory, shader_pack)
-
-        shutil.copy2(shader_pack_path, client_shader_pack_path)
-
-
-def change_tutorial_step():
-    # Path to the options.txt file
-    options_file_path = os.path.join(minecraft_directory, 'options.txt')
-
-    try:
-        # Read the content of options.txt
-        with open(options_file_path, 'r') as file:
-            lines = file.readlines()
-
-        # Find and replace the line starting with 'tutorialStep'
-        modified_lines = [line if not line.startswith('tutorialStep') else 'tutorialStep:none\n' for line in lines]
-
-        # Write the modified content back to options.txt
-        with open(options_file_path, 'w') as file:
-            file.writelines(modified_lines)
-
-        print("Successfully changed the line starting with tutorialStep to tutorialStep:none in options.txt.")
-
-    except FileNotFoundError:
-        print(f"Error: options.txt not found in {minecraft_directory}.")
-
+        print(f"Error overriding files: {e}")
 
 def fetch_current_version():
     # Fetch current version from assets/version.json
@@ -140,7 +132,7 @@ def copy_servers():
 def is_forge_installed():
     versions_directory = os.path.join(minecraft_directory, 'versions')
     vanilla_version_folder = os.path.join(versions_directory, VANILLA_VERSION_ID)
-    forge_version_folder = os.path.join(versions_directory, FORGE_VERSION_ID)
+    forge_version_folder = os.path.join(versions_directory, FORGE_FOLDER)
 
     return os.path.exists(vanilla_version_folder) and os.path.exists(forge_version_folder)
 
@@ -182,7 +174,7 @@ def download_to_tmp(assets):
 
 
 class LaunchThread(QThread):
-    launch_setup_signal = pyqtSignal(str, str, bool, str)
+    launch_setup_signal = pyqtSignal(str, str, bool, str, int)
     progress_update_signal = pyqtSignal(int, int, str)
 
     fetch_progress_signal = pyqtSignal(int, int, str)
@@ -202,12 +194,13 @@ class LaunchThread(QThread):
     def __init__(self):
         super().__init__()
         self.currentLauncherVersion = None
+        self.maxHeap = None
         self.latest_version = None
         self.launch_setup_signal.connect(self.launch_setup)
 
     def install_forge(self, version_id):
-        forge_version = find_forge_version(version_id)
-        forge.install_forge_version(forge_version, minecraft_directory,
+        # forge_version = find_forge_version(version_id)
+        forge.install_forge_version(version_id, minecraft_directory,
                                     callback={'setStatus': self.update_progress_label,
                                               'setProgress': self.update_progress, 'setMax': self.update_progress_max})
 
@@ -247,11 +240,12 @@ class LaunchThread(QThread):
             print(f"Error fetching launcher version: {e}")
             return []
 
-    def launch_setup(self, version_id, username, isReinstallingForge, currentLauncherVersion):
+    def launch_setup(self, version_id, username, isReinstallingForge, currentLauncherVersion, maxHeap):
         self.version_id = version_id
         self.username = username
         self.isReinstallingForge = isReinstallingForge
         self.currentLauncherVersion = currentLauncherVersion
+        self.maxHeap = maxHeap
 
     def update_progress_label(self, value):
         self.progress_label = value
@@ -284,26 +278,26 @@ class LaunchThread(QThread):
 
         create_minecraft_directory()
         if self.isReinstallingForge or not is_forge_installed():
-            self.install_forge(VANILLA_VERSION_ID)
+            self.install_forge(self.version_id)
 
         # install_minecraft_version(versionid=self.version_id, minecraft_directory=minecraft_directory,
         #                           callback={'setStatus': self.update_progress_label,
         #                                     'setProgress': self.update_progress, 'setMax': self.update_progress_max})
-        replace_waystones_config_file()
         clear_and_move_mods('mods')
-        move_extra_shaders()
-        change_tutorial_step()
+        override_files()
         copy_servers()
+        # replace_waystones_config_file()
         if self.username == '':
             self.username = 'testUser'
 
         options = {
             'username': self.username,
             'uuid': '',
+            'jvmArguments':  [f"-Xmx{self.maxHeap}G"],
             'token': ''
         }
         self.installation_complete()
-        call(get_minecraft_command(version=self.version_id, minecraft_directory=minecraft_directory, options=options))
+        call(get_minecraft_command(version=FORGE_FOLDER, minecraft_directory=minecraft_directory, options=options))
 
         self.state_update_signal.emit(False)
 
@@ -317,14 +311,19 @@ def launch_thread_finished(is_finished):
 class MainWindow(QMainWindow):
     def __init__(self, arg_username):
         super().__init__()
-        self.setWindowTitle(TITLE + " Launcher")
+        self.setWindowTitle(TITLE + f" Launcher ({SERVER_TYPE})")
         self.resize(300, 283)
         self.centralwidget = QWidget(self)
         self.logo = QLabel(self.centralwidget)
-        self.logo.setMaximumSize(QSize(550, 320))
-        self.logo.setText('')
+        self.logo.setMaximumSize(QSize(720, 360))
         self.logo.setPixmap(QPixmap('assets/bg.png'))
         self.logo.setScaledContents(True)
+
+        self.ram_slider = QSlider(Qt.Horizontal)
+        self.ram_slider.setMinimum(1)
+        self.ram_slider.setMaximum(16)  # Adjust maximum RAM as needed
+        self.ram_slider.setValue(6)  # Set default RAM value
+        self.ram_slider.valueChanged.connect(self.update_ram_label)  # Connect value change signal
 
         self.titlespacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -356,7 +355,10 @@ class MainWindow(QMainWindow):
         self.vertical_layout.addItem(self.titlespacer)
         self.vertical_layout.addWidget(self.username)
         self.vertical_layout.addItem(self.progress_spacer)
-
+        self.ram_label = QLabel()
+        ram_layout = QHBoxLayout()
+        ram_layout.addWidget(self.ram_slider)
+        ram_layout.addWidget(self.ram_label)
         # Create a horizontal layout for the version label, repo link, and checkbox
         version_checkbox_layout = QHBoxLayout()
 
@@ -364,16 +366,18 @@ class MainWindow(QMainWindow):
         self.launcher_version_label.setText(f"Launcher Version: {fetch_current_version()}")
         version_checkbox_layout.addWidget(self.launcher_version_label, 0, Qt.AlignmentFlag.AlignLeft)
 
+        version_checkbox_layout.addWidget(self.ram_slider, 3)
+        version_checkbox_layout.addWidget(self.ram_label, 1)
         self.repo_link_label = QLabel()
-        self.repo_link_label.setText('<a href="https://github.com/dmoke/new-ec-mc-client">GitHub</a>')
+        self.repo_link_label.setText('<a href="https://github.com/dmoke/BMC-EC-MC-client">GitHub</a>')
         self.repo_link_label.setOpenExternalLinks(True)
-        version_checkbox_layout.addWidget(self.repo_link_label, 1, Qt.AlignmentFlag.AlignRight)
+        version_checkbox_layout.addWidget(self.repo_link_label, 1)
 
-        self.reinstall_forge_checkbox = QCheckBox("Reinstall Forge on launch")
+        self.reinstall_forge_checkbox = QCheckBox("Reinstall Forge")
         self.reinstall_forge_checkbox.setChecked(False)  # Set default value
         version_checkbox_layout.addWidget(self.reinstall_forge_checkbox, 2, Qt.AlignmentFlag.AlignRight)
         # Create a QPushButton for the "Clear all data" option
-        self.delete_purge_button = QPushButton("Clear all data")
+        self.delete_purge_button = QPushButton("Delete launcher created data")
         self.delete_purge_button.setStyleSheet("color: red;")
         self.delete_purge_button.clicked.connect(self.confirm_purge_button)
 
@@ -381,6 +385,9 @@ class MainWindow(QMainWindow):
 
         # Add the combined layout to the main vertical layout
         self.vertical_layout.addLayout(version_checkbox_layout)
+
+        self.update_ram_label()  # Update RAM label with default value
+        # Add RAM slider and label to the layout
 
         self.vertical_layout.addWidget(self.start_progress_label)
         self.vertical_layout.addWidget(self.start_progress)
@@ -394,6 +401,10 @@ class MainWindow(QMainWindow):
         self.launch_thread.finished_signal.connect(launch_thread_finished)
         icon = QIcon("assets/icon.png")
         self.setWindowIcon(icon)
+
+    def update_ram_label(self):
+        ram_amount_gb = self.ram_slider.value()
+        self.ram_label.setText(f"RAM: {ram_amount_gb}G")
 
     def state_update(self, value):
         self.start_button.setDisabled(value)
@@ -421,15 +432,15 @@ class MainWindow(QMainWindow):
             self.perform_purge_action()
 
     def launch_game(self):
-        forge_version_id = "1.12.2-forge-14.23.5.2860"
 
         self.start_progress_label.setText("Checking for updates...")
         self.start_progress.setValue(100)
 
         # Start the launch thread after Forge installation
-        self.launch_thread.launch_setup_signal.emit(forge_version_id, self.username.text(),
+        self.launch_thread.launch_setup_signal.emit(FORGE_VERSION_ID, self.username.text(),
                                                     self.reinstall_forge_checkbox.isChecked(),
-                                                    self.current_launcher_version)
+                                                    self.current_launcher_version,
+                                                    self.ram_slider.value())
 
         self.launch_thread.start()
 
