@@ -19,23 +19,41 @@ if %ERRORLEVEL% EQU 0 (
 
     echo Current version: %VERSION%
 
+    REM Increment version number (increment the last part by 1)
+    for /f "tokens=1,2,3 delims=." %%a in ("%VERSION%") do (
+        set MAJOR=%%a
+        set MINOR=%%b
+        set PATCH=%%c
+    )
+
+    REM Increment patch version
+    set /a PATCH=%PATCH% + 1
+    set NEW_VERSION=%MAJOR%.%MINOR%.%PATCH%
+
+    echo New version: %NEW_VERSION%
+
+    REM Update version.json with new version
+    powershell -Command "(Get-Content '%~dp0..\assets\version.json') -replace '\"version\": \"%VERSION%\"', '\"version\": \"%NEW_VERSION%\"' | Set-Content '%~dp0..\assets\version.json'"
+
+    echo Version.json updated to %NEW_VERSION%
+
     REM Git operations
     echo Adding files to git...
     git add .
 
     echo Committing changes...
-    git commit -m "Build launcher update v%VERSION%"
+    git commit -m "Build launcher update v%NEW_VERSION%"
 
-    echo Creating tag %VERSION%...
-    git tag %VERSION% 2>nul || echo Tag %VERSION% already exists, skipping...
+    echo Creating tag %NEW_VERSION%...
+    git tag %NEW_VERSION% 2>nul || echo Tag %NEW_VERSION% already exists, skipping...
 
     echo Pushing to GitHub...
     git push origin master
-    git push origin %VERSION% 2>nul || echo Tag %VERSION% already pushed, skipping...
+    git push origin %NEW_VERSION% 2>nul || echo Tag %NEW_VERSION% already pushed, skipping...
 
     echo.
     echo All operations completed successfully!
-    echo Release %VERSION% has been created and pushed to GitHub!
+    echo Release %NEW_VERSION% has been created and pushed to GitHub!
 
 ) else (
     echo Build failed! Please check the errors above.
