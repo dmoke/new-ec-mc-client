@@ -1,20 +1,15 @@
 @echo off
 echo Building new launcher executable...
 
-REM Build the executable using PyInstaller
-pyinstaller ..\launcher.spec
+REM Build the executable using PyInstaller with full path
+pyinstaller "%~dp0..\launcher.spec"
 
 REM Check if build was successful
 if %ERRORLEVEL% EQU 0 (
-    echo Build successful! Replacing launcher in root folder...
-
-    REM Copy the built executable to root folder
-    copy /Y dist\launcher.exe ..\launcher.exe
-
-    echo Launcher replaced successfully!
+    echo Build successful! Launcher executable ready!
 
     REM Get current version from version.json
-    for /f "tokens=2 delims=:," %%a in ('type ..\assets\version.json ^| findstr "version"') do (
+    for /f "tokens=2 delims=:," %%a in ('type "%~dp0..\assets\version.json" ^| findstr "version"') do (
         set VERSION=%%~a
         goto :version_found
     )
