@@ -44,11 +44,11 @@ If you can launch the launcher, make sure it's in the launcher_release directory
 
 ```bash
 if [ -d ~/Desktop/launcher_release ]; then
-  sudo chmod +x ~/Desktop/launcher_release/MacLauncher.app/Contents/MacOS/* && echo "Permissions applied successfully in Desktop folder."
+  sudo chmod +x ~/Desktop/launcher_release/MacLauncher.app/Contents/MacOS/* && xattr -d com.apple.quarantine ~/Desktop/launcher_release/MacLauncher.app 2>/dev/null || true && echo "Permissions and quarantine removed successfully in Desktop folder."
 elif [ -d ~/Downloads/launcher_release ]; then
-  sudo chmod +x ~/Downloads/launcher_release/MacLauncher.app/Contents/MacOS/* && echo "Permissions applied successfully in Downloads folder."
+  sudo chmod +x ~/Downloads/launcher_release/MacLauncher.app/Contents/MacOS/* && xattr -d com.apple.quarantine ~/Downloads/launcher_release/MacLauncher.app 2>/dev/null || true && echo "Permissions and quarantine removed successfully in Downloads folder."
 elif [ -d ~/Downloads_launcher_release ]; then
-  sudo chmod +x ~/Downloads_launcher_release/MacLauncher.app/Contents/MacOS/* && echo "Permissions applied successfully in Downloads_launcher_release folder."
+  sudo chmod +x ~/Downloads_launcher_release/MacLauncher.app/Contents/MacOS/* && xattr -d com.apple.quarantine ~/Downloads_launcher_release/MacLauncher.app 2>/dev/null || true && echo "Permissions and quarantine removed successfully in Downloads_launcher_release folder."
 else
   echo "Neither ~/Desktop/launcher_release/ nor ~/Downloads/launcher_release/ directory exists."
 fi
