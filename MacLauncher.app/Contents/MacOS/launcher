@@ -1,0 +1,10 @@
+#!/bin/bash
+
+APP_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+
+osascript <<EOF
+tell application "Terminal"
+    activate
+    do script "cd '$APP_DIR'; sudo java -jar launcher.jar; Process finished. Press Enter to close.'; read -n 1"
+end tell
+EOF
