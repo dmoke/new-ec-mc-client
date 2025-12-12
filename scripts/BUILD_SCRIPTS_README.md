@@ -20,22 +20,21 @@ scripts/
 ### 1. `release.bat [version]`
 
 ### 2. `build_only_macos.sh` / `build_only_macos.bat`
-**Purpose**: Build macOS launcher and create DMG
+**Purpose**: Build macOS launcher
 **What it does**:
-- Builds the macOS app using PyInstaller with `launcher_macos.spec`
-- Creates a DMG package from the built app (only works on macOS)
-- Places `launcher.dmg` in the root folder
+- `build_only_macos.sh` (macOS only): Creates native macOS DMG file
+- `build_only_macos.bat` (Windows): Creates Windows EXE with macOS metadata
 
 **Usage**:
 ```bash
-# On macOS (recommended - creates actual DMG):
+# On macOS - creates REAL DMG file:
 cd scripts
 ./build_only_macos.sh
 
-# On Windows/Linux (creates Windows exe with macOS metadata):
+# On Windows - creates Windows EXE (NOT DMG):
 cd scripts
 .\build_only_macos.bat
-# Note: Cannot create DMG on non-macOS systems, creates launcher_macos.zip instead
+# Note: Creates launcher.dmg in root (Windows EXE with .dmg extension)
 ```
 
 ### 3. `build_only.bat`
