@@ -37,6 +37,12 @@ jobs:
           cp servers.dat launcher_release/
           cp dist/launcher.exe launcher_release/
           cp servers.dat launcher_release/
+          # Copy macOS DMG or ZIP if it exists
+          if [ -f "launcher.dmg" ]; then
+            cp launcher.dmg launcher_release/
+          elif [ -f "launcher_macos.zip" ]; then
+            cp launcher_macos.zip launcher_release/
+          fi
 
       - name: Create Release
         id: create_release

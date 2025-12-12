@@ -5,28 +5,50 @@ This project includes several batch scripts to automate the build and release pr
 ## Directory Structure
 ```
 scripts/
-├── build_only.bat          # Simple build only
-├── build_and_tag.bat       # Build + interactive tagging
-├── build_and_release.bat   # Full automation
-├── version_and_tag.bat     # Version management only
-├── release.bat             # Official release script
-└── BUILD_SCRIPTS_README.md # This documentation
+├── build_only.bat              # Simple Windows build only
+├── build_only_macos.sh         # Simple macOS DMG build only (.sh)
+├── build_only_macos.bat        # Simple macOS DMG build only (.bat)
+├── build_and_tag.bat           # Build + interactive tagging
+├── build_and_release.bat       # Full automation
+├── version_and_tag.bat         # Version management only
+├── release.bat                 # Official release script
+└── BUILD_SCRIPTS_README.md     # This documentation
 ```
 
 ## Available Scripts
 
 ### 1. `release.bat [version]`
-**Purpose**: Official release script (RECOMMENDED)
-**What it does**:
-- Takes version number as parameter
-- Updates `assets/version.json`
-- Runs full build and release process
-- Creates GitHub release
 
-**Usage**: For official releases
+### 2. `build_only_macos.sh` / `build_only_macos.bat`
+**Purpose**: Build macOS launcher and create DMG
+**What it does**:
+- Builds the macOS app using PyInstaller with `launcher_macos.spec`
+- Creates a DMG package from the built app (only works on macOS)
+- Places `launcher.dmg` in the root folder
+
+**Usage**:
+```bash
+# On macOS (recommended - creates actual DMG):
+cd scripts
+./build_only_macos.sh
+
+# On Windows/Linux (creates Windows exe with macOS metadata):
+cd scripts
+.\build_only_macos.bat
+# Note: Cannot create DMG on non-macOS systems, creates launcher_macos.zip instead
+```
+
+### 3. `build_only.bat`
+**Purpose**: Build the launcher executable only
+**What it does**:
+- Builds the executable using PyInstaller
+- Replaces `launcher.exe` in the root folder
+- No git operations
+
+**Usage**: Run when you just want to test builds locally
 ```bash
 cd scripts
-.\release.bat 0.1.5.0
+.\build_only.bat
 ```
 
 ### 2. `build_only.bat`
