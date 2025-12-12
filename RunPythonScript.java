@@ -37,12 +37,13 @@ public class RunPythonScript {
             }
             executeCommand(pbUpgrade, "Upgrade pip");
 
-            // Step 3: Install Python dependencies from requirements.txt
+            // Step 3: Install Python dependencies from platform-specific requirements file
+            String requirementsFile = isWindows() ? "requirements.txt" : "requirements_macos.txt";
             ProcessBuilder pbInstall;
             if (isWindows()) {
-                pbInstall = createProcessBuilder("venv\\Scripts\\pip", "install", "-r", "requirements.txt");
+                pbInstall = createProcessBuilder("venv\\Scripts\\pip", "install", "-r", requirementsFile);
             } else {
-                pbInstall = createProcessBuilder("venv/bin/pip3", "install", "-r", "requirements.txt");
+                pbInstall = createProcessBuilder("venv/bin/pip3", "install", "-r", requirementsFile);
             }
             executeCommand(pbInstall, "Install Python dependencies");
 
