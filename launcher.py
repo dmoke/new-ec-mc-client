@@ -89,17 +89,42 @@ def clear_and_move_mods(local_mods_dir):
 
 
 def override_files():
+    # Skip file overrides in development environment
+    if is_dev_environment:
+        print("Development environment detected - skipping file overrides.")
+        return
+
     # Source directory containing files to override
     source_directory = os.path.join(os.getcwd(), 'assets', 'overrides')
 
     # Destination directory (Minecraft directory)
-    destination_directory = minecraft_directory
+    minecraft_destination = minecraft_directory
+
+    # Also override config files in the launcher root directory
+    launcher_root_destination = os.getcwd()
 
     try:
-        # Copy the entire directory tree from source to destination, overwriting existing files
-        shutil.copytree(source_directory, destination_directory, dirs_exist_ok=True)
+        # Copy overrides to Minecraft directory
+        if os.path.exists(source_directory):
+            shutil.copytree(source_directory, minecraft_destination, dirs_exist_ok=True)
+            print("Minecraft directory files overridden successfully.")
 
-        print("Files overridden successfully.")
+            # Also copy config files to launcher root directory
+            config_source = os.path.join(source_directory, 'config')
+            if os.path.exists(config_source):
+                config_dest = os.path.join(launcher_root_destination, 'config')
+                if not os.path.exists(config_dest):
+                    os.makedirs(config_dest)
+
+                # Copy individual config files
+                for config_file in os.listdir(config_source):
+                    if config_file.endswith('.cfg'):
+                        src_file = os.path.join(config_source, config_file)
+                        dst_file = os.path.join(config_dest, config_file)
+                        shutil.copy2(src_file, dst_file)
+                        print(f"Config file {config_file} copied to launcher root.")
+
+        print("All files overridden successfully.")
     except Exception as e:
         print(f"Error overriding files: {e}")
 
