@@ -44,16 +44,49 @@ GITHUB_REPO = "https://api.github.com/repos/dmoke/new-ec-mc-client/releases/late
 is_dev_environment = os.getenv('DEV_ENVIRONMENT', False)
 
 
+def directory_owned_by_user(path):
+    try:
+        # On Unix systems (macOS, Linux), check if user owns the directory
+        if hasattr(os, 'getuid'):
+            st = os.stat(path)
+            return st.st_uid == os.getuid()
+        else:
+            # On Windows, assume user has access (different permission model)
+            return True
+    except (FileNotFoundError, OSError):
+        return True
+
+def macos_fix_ownership(path):
+    if platform.system() != "Darwin" or not hasattr(os, 'getuid'):
+        return True
+
+    # Safe to use Unix functions on macOS
+    script = f'''
+    do shell script "chown -R {os.getuid()}:{os.getgid()} \\"{path}\\"" with administrator privileges
+    '''
+    try:
+        subprocess.run(
+            ["osascript", "-e", script],
+            check=True
+        )
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
 def clear_and_move_mods(local_mods_dir):
-    # Clear the existing mods directory
     mods_directory = os.path.join(minecraft_directory, 'mods')
+
     if os.path.exists(mods_directory):
+        if not directory_owned_by_user(mods_directory):
+            if platform.system() == "Darwin":
+                success = macos_fix_ownership(minecraft_directory)
+                if not success:
+                    raise PermissionError("User denied permission to fix folder ownership")
+
         shutil.rmtree(mods_directory)
 
-    # Create a new mods directory
-    os.makedirs(mods_directory)
+    os.makedirs(mods_directory, exist_ok=True)
 
-    # Move mods from the local mods directory to the Minecraft mods directory
     if os.path.exists(local_mods_dir):
         for mod_file in os.listdir(local_mods_dir):
             mod_path = os.path.join(local_mods_dir, mod_file)
