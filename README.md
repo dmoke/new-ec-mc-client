@@ -12,12 +12,15 @@ Before using the macOS launcher, install these dependencies:
 # Install Homebrew (if not installed)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Install Java 17
+# Install Java (try Java 17 first, fallback to Java 8 if issues occur)
 brew install openjdk@17
+# OR if Java 17 causes issues: brew install openjdk@8
 
 # Install Python
 brew install python
 ```
+
+**Java Version Note:** Some macOS users have reported compatibility issues with Java 17. If you encounter problems during installation or when running the launcher, try Java 8 instead using `brew install openjdk@8`.
 
 ## Usage
 
@@ -72,5 +75,12 @@ sudo chmod +x ~/Downloads/launcher_release/MacLauncher.app/Contents/MacOS/*
 
 ### Manual Java/Python Setup
 If you encounter issues with the prerequisites:
-- **Java 17**: `brew install openjdk@17`
+- **Java 17** (recommended): `brew install openjdk@17`
+- **Java 8** (fallback): `brew install openjdk@8`
 - **Python**: `brew install python`
+
+### Java Version Issues
+Some macOS users experience compatibility problems with Java 17. If the launcher fails to start:
+1. Uninstall Java 17: `brew uninstall openjdk@17`
+2. Install Java 8: `brew install openjdk@8`
+3. Try launching again
